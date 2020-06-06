@@ -1,0 +1,8 @@
+<% @courses.alphabetical.each do |course| %>
+<section class = "course-<%=course.id%>">
+  <h2><%= course.name  %>: <%= course.total_students  %></h2>
+  <% course.students.alphabetical.each do |student| %>
+    <p><%= student.name%></p>
+  <% end %>
+</section>
+<% end %>

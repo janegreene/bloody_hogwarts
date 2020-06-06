@@ -1,0 +1,9 @@
+
+<% @students.alphabetical.each do |student| %>
+<section class = "student-<%=student.id%>">
+  <p><%= student.name  %></p>
+  <p>Age: <%= student.age  %></p>
+  <p>House: <%= student.house  %></p>
+</section>
+<% end %>
+<p>Average age: <%= @students.average_age%></p>

@@ -1,17 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe Course, type: :model do
-
-  describe 'validations' do
-    it {should validate_presence_of :name}
-  end
-
-  describe 'relationships' do
-    it {should have_many :student_courses}
-    it {should have_many(:students).through(:student_courses)}
-  end
-  describe 'methods' do
-    it "#total_students" do
+RSpec.describe "courses index page", type: :feature do
+    it "can see all courses and their student count" do
       @harry = Student.create(name: "Harry Potter", age: 14 , house:"Griffindor")
       @hermoine = Student.create(name: "Hermoine Grainger", age: 14 , house:"Griffindor")
       @ron = Student.create(name: "Ron Weasley", age: 13 , house:"Griffindor")
@@ -33,10 +23,17 @@ RSpec.describe Course, type: :model do
       StudentCourse.create(course_id: @spells.id, student_id: @malfoy.id)
       StudentCourse.create(course_id: @spells.id, student_id: @hermoine.id)
 
-      expect(@biology.total_students).to eq(3)
-      expect(@dark_arts.total_students).to eq(4)
+      visit "/courses"
+      within ".course-#{@dark_arts.id}" do
+        expect(page).to have_content(@dark_arts.name)
+        expect(page).to have_content("Dark Arts: 4")
+      end
+      within ".course-#{@biology.id}" do
+        expect(page).to have_content(@biology.name)
+        expect(page).to have_content("Biology: 3")
+      end
     end
-    it ".alphabetical" do
+    it "courses in alphabetical order and enrolled students in alphabetical" do
       @harry = Student.create(name: "Harry Potter", age: 14 , house:"Griffindor")
       @hermoine = Student.create(name: "Hermoine Grainger", age: 14 , house:"Griffindor")
       @ron = Student.create(name: "Ron Weasley", age: 13 , house:"Griffindor")
@@ -57,9 +54,14 @@ RSpec.describe Course, type: :model do
       StudentCourse.create(course_id: @spells.id, student_id: @ron.id)
       StudentCourse.create(course_id: @spells.id, student_id: @malfoy.id)
       StudentCourse.create(course_id: @spells.id, student_id: @hermoine.id)
-      course = Course.all
-      expect(course.alphabetical).to eq([@biology, @dark_arts, @spells])
-    end
-  end
 
+      visit "/courses"
+      expect(@biology.name).to appear_before(@dark_arts.name)
+      expect(@dark_arts.name).to appear_before(@spells.name)
+
+      within ".course-#{@dark_arts.id}" do
+        expect(@harry.name).to appear_before(@hermoine.name)
+        expect(@malfoy.name).to appear_before(@ron.name)
+      end
+    end
 end
